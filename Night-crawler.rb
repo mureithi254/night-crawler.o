@@ -30,16 +30,24 @@ class Anemon
     end
   end
 
-  def docs
-    
+  def docs(file_name)
+    @docs = File.readlines(file_name)
   end
   
   def comparative
-    
+    lsi = ClassifierReborn::LSI.new
+    lsi.add_item @data
+
+    @docs.each do |line|
+      lsi.classify line
+      puts lsi.find_related(line)
+    end 
   end
 
 end
 
-google = Anemon.new('https://en.wikipedia.org/wiki/List_of_Nobel_laureates')
-google.crawl
-google.nokog
+google = Anemon.new('http://www.habahaba.co/')
+google.crawler
+google.scrapper
+google.docs("makefile.txt")
+google.comparative
