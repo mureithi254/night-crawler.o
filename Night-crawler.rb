@@ -13,7 +13,8 @@ class Anemon
      Anemone.crawl(@url) do |anemone|
        anemone.on_every_page do |page|
          @urls = []
-           @urls.push(page.url)
+         @links = page.url
+         @urls.push(@links)
        end 
     end
   end
@@ -30,9 +31,9 @@ class Anemon
     end
   end
 
-  def new_file 
+  def scrapper_file 
     #File.file?(filename) will only return true for files
-     #File.exists?(filename) will only return true for directories - watch out
+     #File.exists?(filename) will only return true for directories  watch out
     if File.file?("scrapped.txt")
         File.open("scrapped.txt","w"){ |file| file.write(@data)}
     else
@@ -59,26 +60,45 @@ class Anemon
   #     lsi.find_related(uploaded_line)
 
   #   end 
-  # end
+  # endo
+
 
   def comparative(file_name)
-    @upload_lines = File.readlines(file_name)
+    @scrap_lines = File.readlines(file_name)
 
       @upload_docs.each do |upload_doc_line|
-        if @upload_lines.include?(upload_doc_line)
-           puts "Instances of plagiarism were found on the following lines: "
-           puts "#{upload_doc_line}"
-         else
-          puts "No plagiarism was found in the documents"
+        if @scrap_lines.include?(upload_doc_line)
+           if File.file?("report.txt") 
+               File.open("report.txt" ,"w"){ |file| file.write(upload_doc_line)}
+            else
+              @reportfile = File.new("report.txt","w+")
+               File.open("report.txt","w"){ |file| file.write(upload_doc_line)}
+              @reportfile.close
+           end
+        else
+          puts "No instances of plagiarism detected in the application;"
         end
       end 
   end
 
+  def visited_links
+    if File.file?("visited.txt")
+       File.open("visited.txt","w"){ |file| file.write(@links)}
+    else
+       @visited = File.new("visited.txt","w")
+         File.open("visited.txt","w"){|file| file.write(@links)}
+       @visited.close
+    end
+  end
+
 end
 
-plag = Anemon.new('http://www.habahaba.co/')
+
+
+plag = Anemon.new('http://www.tribiantech.net/')
 plag.crawler
 plag.scrapper
-plag.new_file
+plag.scrapper_file
 plag.uploaded_docs("makefile.txt")
 plag.comparative("scrapped.txt")
+plag.visited_links
